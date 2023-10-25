@@ -4,7 +4,8 @@ const Sequelize = require("sequelize");
 const sequelize = new Sequelize(dbConfig.DB, dbConfig.USER, dbConfig.PASSWORD, {
   host: dbConfig.HOST,
   dialect: dbConfig.dialect,
-  operatorsAliases: false,
+  operatorsAliases: 0,
+  logging: 0,
   // logging: false, //To prevent default logging to console
   pool: {
     max: dbConfig.pool.max,
