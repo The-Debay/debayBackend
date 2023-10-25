@@ -19,5 +19,14 @@ db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
 db.User = require("./model/User.model.js")(sequelize, Sequelize);
+db.Profile = require("./model/Profile.model.js")(sequelize, Sequelize);
+
+db.User.hasOne(db.Profile,{
+  as:'profile',
+  foreignKey:'userId',
+});
+db.Profile.belongsTo(db.User,{
+  foreignKey:'userId',
+})
 
 module.exports = db;

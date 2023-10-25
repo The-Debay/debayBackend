@@ -66,9 +66,55 @@ exports.signUp = catchAsync ( async (req, res, next) => {
   })
 
 
-exports.profile = catchAsync(async (req, res, next) => {
-    const userId = _.get(req, 'id', null);
-    let user = await db.User.findByPk(userId);
-    return res.status(201).json(new ApiResponse({ message: SUCCESS, data: { profile: user } }));
-  });
+// exports.profile = catchAsync(async (req, res, next) => {
+//     const userId = _.get(req, 'id', null);
+//     let user = await db.User.findByPk(userId);
+//     return res.status(201).json(new ApiResponse({ message: SUCCESS, data: { profile: user } }));
+//   });
+
+
+exports.createProfile = catchAsync ( async (req, res, next) => {
+  let id = req.userId;
+  let payload = req.body;
+  let profile = await db.Profile.create({
+    ...payload,
+    userId:id
+  })
+  return res.status(201).json(new ApiResponse({message:'profile created successfully ',data:{profile}}))
+} )
+
+
+exports.getProfile = catchAsync ( async (req, res, next) => {
+  let id = req.userId;
+  let user = await db.User.findOne({
+    where:{
+      id
+    },
+    attributes: { exclude: ['password'] },
+    include:[{
+      model:db.Profile,
+      as:'profile',
+      attributes: { exclude: ['userId'] },
+    }]
+  })
+
+  console.log(user)
+  return res.status(201).json(new ApiResponse({message:'profile created successfully ',data:{user}}))
+} )
+
+
+exports.updateProfile = catchAsync ( async (req, res, next) => {
+  let id = req.userId;
+  console.log(id,";id")
+
+  let user = await db.Profile.update(_.get(req,'body',{}),{ 
+    where:{
+      userId:id
+    }
+  })
+  return res.status(201).json(new ApiResponse({message:'profile updated successfully ',data:{}}))
+} )
+
+
+
 
