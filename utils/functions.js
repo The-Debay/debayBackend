@@ -64,7 +64,7 @@ exports.getNamesArr = (data, id) => {
   return [arr.categoryName] 
 }
 
-exports.otpExpiredTime = (time=30) => {
+exports.otpExpiredTime = (time=600) => {
   const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current timestamp in seconds
   const futureTimestamp = currentTimestamp + Number(time);
   return (futureTimestamp * 1000).toString();

@@ -26,6 +26,15 @@ module.exports = (sequelize, Sequelize) => {
           this.setDataValue('password', bcrypt.hashSync(value, bcrypt.genSaltSync(10)));
         },  
       },
+      isEmailVerified:{
+        type: Sequelize.BOOLEAN,
+        defaultValue: false,
+      },
+      otp:{
+        type: Sequelize.INTEGER,
+        default:null
+      },
+      lastOtpTime:{type: Sequelize.STRING}
     },
     {
         indexes: [
