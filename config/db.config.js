@@ -1,12 +1,12 @@
 
-const { DB_USER, DB_HOST, DB_PASS, DB } = process.env
+const { DB_USER, DB_HOST, DB_PASS, DB , DB_PORT} = process.env
 
 const dbConfig = {
   USER: DB_USER,
   HOST: DB_HOST,
   DB: DB,
   PASSWORD: DB_PASS,
-  port: 5432, // default PostgreSQL port
+  port: DB_PORT, // default PostgreSQL port
   dialect: 'postgres',
   pool: {
     max: 5,
