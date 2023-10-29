@@ -1,0 +1,6 @@
+install sequelize-cli
+sequelize init  
+//it will create config.json file in config folder.
+npx sequelize-cli migration:generate --name your_migration_name
+//Replace your_migration_name with a descriptive name for your migration, for example, add_column_to_users_table.
+npx sequelize-cli db:migrate
