@@ -10,11 +10,12 @@ const { passwordRegex, generateSixDigitRandomNumber, otpExpiredTime } = require(
 const { sendMails } = require('./nodeMailerServices');
 
 const getToken = (id) => {
-    return jwt.sign({ id: id }, process.env.SECREAT_KEY)
+  return jwt.sign({ id: id }, process.env.SECREAT_KEY, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  })
 }
 
 exports.checkUsernameExist = exports.signUp = catchAsync ( async (req, res, next) => { 
-
   console.log(req.params,"params")
   let username = req.params.username;
   let user = await db.User.findOne({where:{
@@ -24,7 +25,6 @@ exports.checkUsernameExist = exports.signUp = catchAsync ( async (req, res, next
     return res.status(201).json(new ApiResponse({message:'success',data:{isUniqueUsername}}))
 })
   
-
 exports.signUp = catchAsync ( async (req, res, next) => { 
   console.log('called')
     let { name,email, password, username } = req.body
@@ -45,7 +45,6 @@ exports.signUp = catchAsync ( async (req, res, next) => {
     sendMails({customerName:'Hi',otp:newOtp,email})
     return res.status(201).json(new ApiResponse({message:'success',data:{user}}))
 })
-  
 
 exports.verifyEmailOtp = catchAsync( async ( req, res, next) => {
   let {email, otp} = req.body;
@@ -88,19 +87,15 @@ exports.generateNewOtp = catchAsync ( async (req, res, next) => {
   res.status(200).json(new ApiResponse({message:'otp sent successfully',data:{}}))
 })
 
-  
+exports.login = catchAsync(async (req,res,next) => {
+  let data = req.body;
+  let user = req.user;
 
-  exports.login = catchAsync(async (req,res,next) => {
-    let data = req.body;
-    let user = req.user;
-
-    console.log(user)
-    if (!bcrypt.compareSync(_.get(data, 'password', ""), user.password)) return next(new AppError("invalid password", 400))
-    let token = getToken(user.id)
-    return res.status(201).json(new ApiResponse({message:'login success ',data:{token,user}}))
-  })
-
-
+  console.log(user)
+  if (!bcrypt.compareSync(_.get(data, 'password', ""), user.password)) return next(new AppError("invalid password", 400))
+  let token = getToken(user.id)
+  return res.status(201).json(new ApiResponse({message:'login success ',data:{token,user}}))
+})
 
 exports.createProfile = catchAsync ( async (req, res, next) => {
   let id = req.userId;
@@ -111,7 +106,6 @@ exports.createProfile = catchAsync ( async (req, res, next) => {
   })
   return res.status(201).json(new ApiResponse({message:'profile created successfully ',data:{profile}}))
 } )
-
 
 exports.getProfile = catchAsync ( async (req, res, next) => {
   let id = req.userId;
@@ -129,8 +123,7 @@ exports.getProfile = catchAsync ( async (req, res, next) => {
 
   console.log(user)
   return res.status(201).json(new ApiResponse({message:'profile created successfully ',data:{user}}))
-} )
-
+})
 
 exports.updateProfile = catchAsync ( async (req, res, next) => {
   let id = req.userId;

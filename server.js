@@ -8,11 +8,6 @@ const cors = require('cors')
 const globalErrorHandler = require('./controller/errorController');
 const AppError = require('./utils/appError')
 const db = require("./dbConfig");
-const swaggerUi = require('swagger-ui-express');
-const swaggerSpec = require('./swagger/swaggerConfig'); // Your Swagger configuration
-
-// const swaggerUi = require("swagger-ui-express"),
-// swaggerDocument = require("./swagger.json")
 
 app.use(bodyParser.json())
 app.use(
@@ -29,19 +24,13 @@ app.use(cors())
 app.use(express.json())
 
 
-app.get('/', (request, response) => {
-  response.json({ info: 'Node.js, Express, and Postgres API' })
-})
-app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerSpec));
-
-
 db.sequelize.sync({alter:true})
   .then(async () => {
     console.log("Synced db.");
   })
   .catch((err) => {
     console.log("Failed to sync db: " + err.message);
-  });
+});
 
 
 app.use("/api/v1", require('./routes/index'))
