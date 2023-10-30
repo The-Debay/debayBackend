@@ -33,6 +33,9 @@ const User = sequelize.define('User', {
   password: {
     type: DataTypes.STRING,
     allowNull: false,
+    set(value) {
+      this.setDataValue('password', bcrypt.hashSync(value, bcrypt.genSaltSync(10)));
+    }, 
   },
   isVerified: {
     type: DataTypes.BOOLEAN,

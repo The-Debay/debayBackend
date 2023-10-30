@@ -1,33 +1,37 @@
-const bcrypt = require('bcryptjs');
+const DataTypes = require('sequelize');
+const {sequelize} = require('../config/sequelize');
 
-module.exports = (sequelize, Sequelize) => {
-  const Profile = sequelize.define('profile', {
-    id: {
-      type: Sequelize.INTEGER,
-      autoIncrement: true,
-      primaryKey: true,
-    },
-    name: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-    profile_picture: {
-      type: Sequelize.STRING,
-      allowNull: true,
-    },
-    description: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-    date_of_registration: {
-      type: Sequelize.DATE,
-      defaultValue: Sequelize.DATE,
-    },
-    location: {
-      type: Sequelize.STRING,
-      defaultValue: '',
-    },
-  });
+const Profile = sequelize.define('profile', {
+  id: {
+    allowNull: false,
+    autoIncrement: true,
+    primaryKey: true,
+    type: DataTypes.INTEGER
+  },
+  name: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  profile_avtar: {
+    type: DataTypes.STRING,
+    default:'https://upload.wikimedia.org/wikipedia/commons/1/1e/Default-avatar.jpg'
+  },
+  description: {
+    type: DataTypes.STRING(2000),
+    allowNull: true,
+  },
+  date_of_registration: {
+    type: DataTypes.DATE,
+    allowNull: false,
+  },
+  country:{
+    type: DataTypes.STRING,
+    allowNull: false,
+    }
+  },
+  {
+    timestamps: false // Include timestamps (createdAt, updatedAt)
+  },
+);
 
-  return Profile;
-};
+module.exports = Profile;
