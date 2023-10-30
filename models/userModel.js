@@ -41,7 +41,7 @@ const User = sequelize.define('User', {
     type: DataTypes.BOOLEAN,
     defaultValue: false,
   },
-  lastPasswordChange: { type: DataTypes.DATE }
+  lastPasswordChange: { type: DataTypes.DATE, default:Date.now }
   },
   {
     timestamps: false // Include timestamps (createdAt, updatedAt)
