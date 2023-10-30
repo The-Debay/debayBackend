@@ -1,55 +1,60 @@
 const bcrypt = require('bcryptjs');
-const { DataTypes } = require('sequelize');
-module.exports = (sequelize, Sequelize) => {
-  const User = sequelize.define( 'user', {
-    id: {
-      allowNull: false,
-      autoIncrement: true,
-      primaryKey: true,
-      type: Sequelize.INTEGER
-    },
-    created: {
-      allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Date.now()
-    },
-    updated: {
-      allowNull: false,
-      type: Sequelize.DATE,
-      defaultValue: Date.now()
-    },
-    username: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
-    },
-    email: {
-      type: Sequelize.STRING,
-      allowNull: false,
-      unique: true
-    },
-    password: {
-      type: Sequelize.STRING,
-      allowNull: false,
-    },
-    isVerified:{
-      type: Sequelize.BOOLEAN,
-      defaultValue: false,
-    },
-    lastPasswordChange:{type: Sequelize.DATE}
-    },
-    {
-      indexes: [
-        {
-          unique: true,
-          fields: ['email'],
-        },
-        {
-          unique: true,
-          fields: ['username'],
-        },
-      ],
-    },
-  );
-  return User;
-};
+const DataTypes = require('sequelize');
+const {sequelize} = require('../config/sequelize');
+
+
+const User = sequelize.define('User', {
+  id: {
+    allowNull: false,
+    autoIncrement: true,
+    primaryKey: true,
+    type: DataTypes.INTEGER
+  },
+  created: {
+    allowNull: false,
+    type: DataTypes.DATE,
+    defaultValue: Date.now()
+  },
+  updated: {
+    allowNull: false,
+    type: DataTypes.DATE,
+    defaultValue: Date.now()
+  },
+  username: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  email: {
+    type: DataTypes.STRING,
+    allowNull: false,
+    unique: true
+  },
+  password: {
+    type: DataTypes.STRING,
+    allowNull: false,
+  },
+  isVerified: {
+    type: DataTypes.BOOLEAN,
+    defaultValue: false,
+  },
+  lastPasswordChange: { type: DataTypes.DATE }
+  },
+  {
+    timestamps: false // Include timestamps (createdAt, updatedAt)
+  },
+  {
+    indexes: [
+      {
+        unique: true,
+        fields: ['email'],
+      },
+      {
+        unique: true,
+        fields: ['username'],
+      },
+    ],
+  },
+);
+
+module.exports = User;

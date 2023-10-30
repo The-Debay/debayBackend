@@ -1,6 +1,6 @@
 const catchAsync = require('./../utils/catchAsync');
 const AppError = require('./../utils/appError');
-const db = require("../dbConfig");
+const User = require('../models/userModel');
 const jwt = require("jsonwebtoken");
 const _ = require('lodash');
 const ApiResponse = require('../utils/responseSchema');
@@ -18,39 +18,40 @@ const getToken = (id) => {
 exports.checkUsernameExist = exports.signUp = catchAsync ( async (req, res, next) => { 
   console.log(req.params,"params")
   let username = req.params.username;
-  let user = await db.User.findOne({where:{
+  let user = await User.findOne({where:{
     username:username,
   }})
   let isUniqueUsername = !user;
     return res.status(201).json(new ApiResponse({message:'success',data:{isUniqueUsername}}))
 })
   
-exports.signUp = catchAsync ( async (req, res, next) => { 
-  console.log('called')
-    let { name,email, password, username } = req.body
-    if(!(name || email || password || username)) return next(new AppError('please provide details',400));
-    if (!passwordRegex.test(password)) return next(new AppError('password must include one uppercase letter one lower one special one numberic and minimum 10 character', 400))
-    let user = await db.User.findOne({where:{
-        email:email,
-    }})
-    if(user) return next( new AppError('email already exist',400))
-    user = await db.User.findOne({where:{
-      username:username,
-   }})
-   const lastTime = otpExpiredTime()
+exports.signUp = catchAsync(async (req, res, next) => {
+  
+  let { email, password, username } = req.body
+  if (!(email && password && username)) return next(new AppError('please provide all details', 400));
+  
+  if (!passwordRegex.test(password)) return next(
+    new AppError('password must include one uppercase letter one lower one special one numberic and minimum 10 character', 400)
+  )
 
-   let newOtp = generateSixDigitRandomNumber()
-  if(user) return next( new AppError('username already exist',400))
-    user = await db.User.create({name,email,password,username,otp:newOtp,lastOtpTime:lastTime});
-    sendMails({customerName:'Hi',otp:newOtp,email})
-    return res.status(201).json(new ApiResponse({message:'success',data:{user}}))
+  let isEmailExist = await User.findOne({where:{ email }})
+  if (isEmailExist) return next(new AppError('email already exist', 400))
+  
+  isUsernameExist = await User.findOne({where:{ username }})
+  if (isUsernameExist) return next(new AppError('username already exist', 400))
+  
+  const lastTime = otpExpiredTime()
+  let newOtp = generateSixDigitRandomNumber()
+  user = await User.create({email,password,username});
+  sendMails({customerName:'Hi',otp:newOtp,email})
+  return res.status(201).json(new ApiResponse({message:'success',data:{user}}))
 })
 
 exports.verifyEmailOtp = catchAsync( async ( req, res, next) => {
   let {email, otp} = req.body;
   if(!email) return next(new AppError('provide email',400))
   if(!otp) return next(new AppError('provide otp',400))
-  let user = await db.User.findOne({
+  let user = await User.findOne({
     where:{
       email:email
     }
@@ -59,7 +60,7 @@ exports.verifyEmailOtp = catchAsync( async ( req, res, next) => {
   if(user.isEmailVerified) return next(new AppError('email already verified',400))
   if(Number(user.lastOtpTime) < Date.now()) return next(new AppError('otp expired',400));
   if(!(user.otp == otp)) return next(new AppError('invalid otp please provide valid otp',400))
-  await db.User.update({
+  await User.update({
     isEmailVerified:true
   },
   {
@@ -75,7 +76,7 @@ exports.generateNewOtp = catchAsync ( async (req, res, next) => {
   let {email} = req.body;
   const lastTime = otpExpiredTime()
   let newOtp = generateSixDigitRandomNumber()
-  await db.User.update({
+  await User.update({
     otp:newOtp,
     lastOtpTime:lastTime
   },{
@@ -109,7 +110,7 @@ exports.createProfile = catchAsync ( async (req, res, next) => {
 
 exports.getProfile = catchAsync ( async (req, res, next) => {
   let id = req.userId;
-  let user = await db.User.findOne({
+  let user = await User.findOne({
     where:{
       id
     },
