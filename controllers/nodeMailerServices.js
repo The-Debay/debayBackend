@@ -4,14 +4,14 @@ const fs = require("fs");
 const { EMAIL_SUCCESS, EMAIL_FAIL } = require("../utils/constantMessage");
 const nodemailer = require("nodemailer");
 
-const sendMails = async ({customerName, otp, email, subject = "Otp for Verification"}={}) => {
+const sendMails = async ({customerName, otp, email, subject = "Otp for Verification", otpValidTime}={}) => {
   const __dirname = path.resolve();
   const filePath = path.join(__dirname, "/htmlTemplate/emailOtp.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();
   const template = handlebars.compile(source);
   const replacements = {
     customerName,
-    otp,
+    otp,otpValidTime
   };
   const htmlToSend = template(replacements);
   const transporter = nodemailer.createTransport({

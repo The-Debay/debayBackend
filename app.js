@@ -8,6 +8,7 @@ const app = express();
 
 // router imports
 const authRouter = require('./routes/authRoutes')
+const profileRoute = require('./routes/profileRoutes')
 
 // Parse JSON bodies for API requests
 app.use(bodyParser.json());
@@ -30,6 +31,7 @@ app.use(express.json())
 baseAPI = '/api/v1'
 
 app.use(`${baseAPI}`, authRouter)
+app.use(`${baseAPI}`,profileRoute)
 
 app.all('*', (req, res, next) => {
     next(new AppError(`Can't find ${req.originalUrl} on this server!`, 404));

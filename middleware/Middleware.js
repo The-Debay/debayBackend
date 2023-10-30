@@ -7,7 +7,7 @@ const _ = require("lodash");
 const db = require("../config/sequelize");
 const { NOT_FOUND } = require("../utils/constantMessage");
 
-exports.protectOtpAuthentication = catchAsync(async (req, res, next) => {
+exports.protectRoute = catchAsync(async (req, res, next) => {
   const token = req.headers.authorization;
   console.log(token);
   if (!token) {

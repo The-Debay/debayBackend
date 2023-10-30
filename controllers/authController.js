@@ -15,6 +15,7 @@ const getToken = (id) => {
   })
 }
 
+
 exports.checkUsernameExist = exports.signUp = catchAsync ( async (req, res, next) => { 
   console.log(req.params,"params")
   let username = req.params.username;
@@ -78,7 +79,6 @@ exports.generateNewOtp = catchAsync ( async (req, res, next) => {
   let newOtp = generateSixDigitRandomNumber()
   await User.update({
     otp:newOtp,
-    lastOtpTime:lastTime
   },{
     where:{
       email
@@ -91,53 +91,17 @@ exports.generateNewOtp = catchAsync ( async (req, res, next) => {
 exports.login = catchAsync(async (req,res,next) => {
   let data = req.body;
   let user = req.user;
-
-  console.log(user)
   if (!bcrypt.compareSync(_.get(data, 'password', ""), user.password)) return next(new AppError("invalid password", 400))
   let token = getToken(user.id)
   return res.status(201).json(new ApiResponse({message:'login success ',data:{token,user}}))
 })
 
-exports.createProfile = catchAsync ( async (req, res, next) => {
-  let id = req.userId;
-  let payload = req.body;
-  let profile = await db.Profile.create({
-    ...payload,
-    userId:id
-  })
-  return res.status(201).json(new ApiResponse({message:'profile created successfully ',data:{profile}}))
+exports.resetPassword = catchAsync( async (req, res, next) => {
+
+
+
+
 } )
-
-exports.getProfile = catchAsync ( async (req, res, next) => {
-  let id = req.userId;
-  let user = await User.findOne({
-    where:{
-      id
-    },
-    attributes: { exclude: ['password'] },
-    include:[{
-      model:db.Profile,
-      as:'profile',
-      attributes: { exclude: ['userId'] },
-    }]
-  })
-
-  console.log(user)
-  return res.status(201).json(new ApiResponse({message:'profile created successfully ',data:{user}}))
-})
-
-exports.updateProfile = catchAsync ( async (req, res, next) => {
-  let id = req.userId;
-  console.log(id,";id")
-
-  let user = await db.Profile.update(_.get(req,'body',{}),{ 
-    where:{
-      userId:id
-    }
-  })
-  return res.status(201).json(new ApiResponse({message:'profile updated successfully ',data:{}}))
-} )
-
 
 
 
