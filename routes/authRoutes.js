@@ -1,8 +1,7 @@
 const express = require('express')
-const router = express.Router();
-const authController = require("../controller/authController")
-const authMiddleware = require("../middleware/Middleware")
-
+const router = express.Router()
+const authController = require('../controllers/authController')
+const authMiddleware = require('../middleware/Middleware')
 
 
 router.post('/signup',authController.signUp)
@@ -14,7 +13,8 @@ router.put('/profile',[authMiddleware.protectOtpAuthentication],authController.u
 router.post('/verify-email',authController.verifyEmailOtp)
 router.post('/generate-otp',[authMiddleware.checkOtpTime],authController.generateNewOtp)
 
+// router.post("/forgotPassword", userController.forgotPassword)
+// router.post("/resetPassword", userController.resetPassword)
 
 
-
-module.exports = router
+module.exports = router;

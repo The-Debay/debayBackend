@@ -4,7 +4,7 @@ const AppError = require("../utils/appError");
 const { promisify } = require("util");
 const morgan = require("morgan");
 const _ = require("lodash");
-const db = require("../dbConfig");
+const db = require("../config/sequelize");
 const { NOT_FOUND } = require("../utils/constantMessage");
 
 exports.protectOtpAuthentication = catchAsync(async (req, res, next) => {
