@@ -70,10 +70,6 @@ exports.verifyEmailOtp = catchAsync( async ( req, res, next) => {
     }
   })
   return res.status(200).json(new ApiResponse({message:"otp verification successfuly",data:{}}));
-
-
-
-
 })
 
 exports.generateNewOtp = catchAsync ( async (req, res, next) => {
@@ -98,12 +94,7 @@ exports.login = catchAsync(async (req,res,next) => {
   return res.status(201).json(new ApiResponse({message:'login success ',data:{token,user}}))
 })
 
-exports.resetPassword = catchAsync( async (req, res, next) => {
 
-
-
-
-} )
 
 
 
