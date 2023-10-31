@@ -8,6 +8,9 @@ const { SUCCESS } = require('../utils/constantMessage');
 const bcrypt = require('bcrypt');
 const { passwordRegex, generateSixDigitRandomNumber, otpExpiredTime } = require('../utils/functions');
 const { sendMails } = require('./nodeMailerServices');
+const { setRedisKey } = require("../cahching/rediesMethods");
+const { getRedisKey } = require('../cahching/rediesMethods');
+const { deleteRedisKey } = require('../cahching/rediesMethods');
 
 const getToken = (id) => {
   return jwt.sign({ id: id }, process.env.SECREAT_KEY, {
@@ -17,7 +20,6 @@ const getToken = (id) => {
 
 
 exports.checkUsernameExist = exports.signUp = catchAsync ( async (req, res, next) => { 
-  console.log(req.params,"params")
   let username = req.params.username;
   let user = await User.findOne({where:{
     username:username,
@@ -29,63 +31,63 @@ exports.checkUsernameExist = exports.signUp = catchAsync ( async (req, res, next
 exports.signUp = catchAsync(async (req, res, next) => {
   
   let { email, password, username } = req.body
-  if (!(email && password && username)) return next(new AppError('please provide all details', 400));
-  
+  if (!(email && password && username)) return next(new AppError('please provide username email and password', 400));
   if (!passwordRegex.test(password)) return next(
     new AppError('password must include one uppercase letter one lower one special one numberic and minimum 10 character', 400)
   )
-
   let isEmailExist = await User.findOne({where:{ email }})
   if (isEmailExist) return next(new AppError('email already exist', 400))
-  
   isUsernameExist = await User.findOne({where:{ username }})
   if (isUsernameExist) return next(new AppError('username already exist', 400))
-  
-  const lastTime = otpExpiredTime()
-  let newOtp = generateSixDigitRandomNumber()
+
+  const newOtpTime = otpExpiredTime(1);
+  const newOtp = generateSixDigitRandomNumber();
+  let user;
+  let otpDetails = {
+    otp:newOtp,
+    newOtpTime:newOtpTime
+  }
   user = await User.create({email,password,username});
+  setRedisKey(`otp__${user.id}`,JSON.stringify(otpDetails),900);
   sendMails({customerName:'Hi',otp:newOtp,email})
   return res.status(201).json(new ApiResponse({message:'success',data:{user}}))
 })
 
 exports.verifyEmailOtp = catchAsync( async ( req, res, next) => {
-  let {email, otp} = req.body;
-  if(!email) return next(new AppError('provide email',400))
-  if(!otp) return next(new AppError('provide otp',400))
-  let user = await User.findOne({
+  let {otp} = req.body;
+  let user = req.user;
+  if(user.isVerified) return new AppError('email already exist',400);
+  let myOtpData = getRedisKey(user.id);
+  if(!myOtpData) return next(new AppError('otp expired',400));
+  myOtpData = JSON.parse(myOtpData);
+  if(myOtpData.otp != otp) return next(new AppError('invalid otp',400));
+  deleteRedisKey(user.id);
+  await User.update({
+    isVerified:true
+  },{
     where:{
-      email:email
+      id:user.id
     }
   })
-  if(!user) return next(new AppError('user not exist',400))
-  if(user.isEmailVerified) return next(new AppError('email already verified',400))
-  if(Number(user.lastOtpTime) < Date.now()) return next(new AppError('otp expired',400));
-  if(!(user.otp == otp)) return next(new AppError('invalid otp please provide valid otp',400))
-  await User.update({
-    isEmailVerified:true
-  },
-  {
-    where:{
-      email:email
-    }
-  }
-  )
-  res.status(200).json(new ApiResponse({message:"email verification successfully",data:{}}))
+  return res.status(200).json(new ApiResponse({message:"otp verification successfuly",data:{}}));
+
+
+
+
 })
 
 exports.generateNewOtp = catchAsync ( async (req, res, next) => {
-  let {email} = req.body;
-  const lastTime = otpExpiredTime()
-  let newOtp = generateSixDigitRandomNumber()
-  await User.update({
+  let user = req.user;
+  if(user.isVerified) return next(new AppError('user already verified',400));
+  const newOtpTime = otpExpiredTime(1);
+  const newOtp = generateSixDigitRandomNumber();
+  let otpDetails = {
     otp:newOtp,
-  },{
-    where:{
-      email
-    }
-  })
-  sendMails({customerName:'Hi',otp:newOtp,email})
-  res.status(200).json(new ApiResponse({message:'otp sent successfully',data:{}}))
+    newOtpTime:newOtpTime
+  }
+  await setRedisKey(`otp__${user.id}`,JSON.stringify(otpDetails),900);
+  sendMails({customerName:'',otp:newOtp,email:user.email})
+  res.status(200).json(new ApiResponse({message:`otp sent ${user.email} successfully`,data:{}}));
 })
 
 exports.login = catchAsync(async (req,res,next) => {

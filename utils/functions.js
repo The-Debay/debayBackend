@@ -65,7 +65,7 @@ exports.getNamesArr = (data, id) => {
 }
 
 
-exports.otpExpiredTime = (time=5) => { // time in minutes
+exports.otpExpiredTime = (time=1) => { // time in minutes
   time = time * 60;
   const currentTimestamp = Math.floor(Date.now() / 1000); // Get the current timestamp in seconds
   const futureTimestamp = currentTimestamp + Number(time);
@@ -107,22 +107,14 @@ exports.getDate = (type) => {
     }
 
   }
+
 }
 
-// const keya = {
-//   MANAGE_PLATFORM_TEAM:'MANAGE_PLATFORM_TEAM',
-//   CREATE_ORDER_MY_INVENTORY:'CREATE_ORDER_MY_INVENTORY',
-//   CREATE_ORDER_ALL_INVENTORY:'CREATE_ORDER_ALL_INVENTORY',
-//   VIEW_ORDERS:'VIEW_ORDERS',
-//   MANAGE_CUSTOMERS:'MANAGE_CUSTOMERS',
-//   MANAGE_ADMINISTRATION:'MANAGE_ADMINISTRATION'
-// }
 
-exports.adminPrivilages = [
-  'MANAGE_PLATFORM_TEAM',
-  'CREATE_ORDER_MY_INVENTORY',
-  'CREATE_ORDER_ALL_INVENTORY',
-  'VIEW_ORDERS',
-  'MANAGE_CUSTOMERS',
-  'MANAGE_ADMINISTRATION'
-]
+exports.checkKeyExistOrNot = (obj = {}, key="") => {
+  try {
+    return obj.hasOwnProperty(key) 
+  } catch (error) {
+    return false;
+  }
+}

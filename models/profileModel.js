@@ -20,10 +20,6 @@ const Profile = sequelize.define('profile', {
     type: DataTypes.STRING(2000),
     allowNull: true,
   },
-  date_of_registration: {
-    type: DataTypes.DATE,
-    allowNull: false,
-  },
   country:{
     type: DataTypes.STRING,
     allowNull: false,

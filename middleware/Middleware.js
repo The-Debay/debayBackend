@@ -6,6 +6,10 @@ const morgan = require("morgan");
 const _ = require("lodash");
 const db = require("../config/sequelize");
 const { NOT_FOUND } = require("../utils/constantMessage");
+const { checkKeyExistOrNot } = require("../utils/functions");
+const User = require("../models/userModel");
+const { getRedisKey } = require("../cahching/rediesMethods");
+const { object } = require("joi");
 
 exports.protectRoute = catchAsync(async (req, res, next) => {
   const token = req.headers.authorization;
@@ -61,20 +65,51 @@ exports.checkEmailVerified = catchAsync(async (req, res, next) => {
   next();
 });
 
-exports.checkOtpTime = catchAsync(async (req, res, next) => {
-  let {email} = req.body
-  if(!email) return next(new AppError('provide email',400))
-  let user = await db.User.findOne({
-    where:{
-      email:email
-    }
-  })
-  if(!user) return next(new AppError('user not exist',400))
-  if(user.isEmailVerified) return next(new AppError('email already verified',400))
-  if(Number(user.lastOtpTime) > Date.now()){
-      let calculateSeconds = Math.ceil((Number(user.lastOtpTime) - Date.now()) / 1000);
-      let temp = calculateSeconds > 60 ? `wait ${Math.ceil(calculateSeconds/60)} minutes ` :` wait ${calculateSeconds} seconds`
-      return next(new AppError(temp + "for new otp",400))
+exports.checkNewOtpTime = catchAsync(async (req, res, next) => {
+  let user = req.user;
+ 
+  let otpData = await  getRedisKey(`otp__${user.id}`);
+  
+  if (!otpData) return next();
+  
+  otpData = JSON.parse(otpData);
+  console.log(otpData, "otpData");
+  let newOtpTime = otpData.newOtpTime;
+  if (Number(newOtpTime) > new Date()) {
+    let calculateSeconds = Math.ceil(
+      (new Date(Number(newOtpTime)).getTime() - Date.now()) / 1000
+    );
+    return next(
+      new AppError(`wait ${calculateSeconds} seconds for new Otp`, 400)
+    );
+  }else{
+    next();
   }
-  next()
+ 
+});
+
+exports.checkUserExistOrNot = catchAsync(async (req, res, next) => {
+  let data = req.body;
+  if (
+    !data ||
+    Object.keys(data).includes("gmail") ||
+    Object.keys(data).includes("username")
+  ) {
+    return next(new AppError("please provide email or username", 401));
+  }
+  let findQuery = { username: req?.body?.username };
+  if (Object.keys(data).includes("gmail")) {
+    findQuery = { email: req?.body?.email };
+  }
+  findQuery = {
+    email: req.body.email,
+  };
+  let user = await User.findOne({
+    where: {
+      ...findQuery,
+    },
+  });
+  if (!user) return next(new AppError(NOT_FOUND("user"), 401));
+  req.user = user;
+  next();
 });

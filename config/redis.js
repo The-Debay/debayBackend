@@ -1,15 +1,15 @@
 const { createClient }  =  require('redis');
 
-const client = createClient({ legacyMode: true });
+const client = createClient();
 
-const connectRadis = async () => {
+const connectRedies = async () => {
     client.on('error', err => console.log('Redis Client Error', err));
     await client.connect();
-    console.log('redies connected') 
+    console.log('redis connected') 
 }
 
 
 module.exports = {
-    connectRadis,
+    connectRedies,
     client
-}
+} 

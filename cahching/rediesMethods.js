@@ -1,4 +1,4 @@
-const { client } = require("../config/radis");
+const { client } = require("../config/redis");
 
 
 exports.setRedisKey = async (key, value, expirationInSeconds) => {
@@ -19,13 +19,17 @@ exports.setRedisKey = async (key, value, expirationInSeconds) => {
 
 exports.getRedisKey = async (key) => {
   try {
-    const value = await client.getAsync(key);
+    const value = await client.get(key);
+    console.log('getValue',value,key)
     return value || false;
   } catch (err) {
     console.error(`Error getting key ${key}:`, err);
     return false;
   }
 };
+
+
+// this.getRedisKey('otp__1')
 
 
 exports.deleteRedisKey = async (key) => {
