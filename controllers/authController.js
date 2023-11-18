@@ -13,6 +13,7 @@ const { getRedisKey } = require('../cahching/rediesMethods');
 const { deleteRedisKey } = require('../cahching/rediesMethods');
 
 const getToken = (id) => {
+  console.log(process.env.SECREAT_KEY,"process.env.SECREAT_KEY")
   return jwt.sign({ id: id }, process.env.SECREAT_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   })
@@ -89,7 +90,9 @@ exports.generateNewOtp = catchAsync ( async (req, res, next) => {
 exports.login = catchAsync(async (req,res,next) => {
   let data = req.body;
   let user = req.user;
-  if (!bcrypt.compareSync(_.get(data, 'password', ""), user.password)) return next(new AppError("invalid password", 400))
+  if (!bcrypt.compareSync(_.
+    
+    get(data, 'password', ""), user.password)) return next(new AppError("invalid password", 400))
   let token = getToken(user.id)
   return res.status(201).json(new ApiResponse({message:'login success ',data:{token,user}}))
 })

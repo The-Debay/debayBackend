@@ -1,17 +1,22 @@
+const Profile = require("../models/profileModel");
+const User = require("../models/userModel");
 const catchAsync = require("../utils/catchAsync");
 const { countryArr } = require("../utils/constant");
+const { returnKeys } = require("../utils/functions");
 const ApiResponse = require("../utils/responseSchema");
-
-
 
 module.exports = {
   createProfile: catchAsync(async (req, res, next) => {
     let id = req.userId;
     let payload = req.body;
-    let profile = await db.Profile.create({
-      ...payload,
+
+    let payloadData = returnKeys(payload,'name','profile_avtar','bio','country')
+    console.log(payloadData,"payloadData")
+    let profile = await Profile.create({
+      ...payloadData,
       userId: id,
     });
+
     return res.status(201).json(
       new ApiResponse({
         message: "profile created successfully ",
@@ -26,44 +31,45 @@ module.exports = {
       where: {
         id,
       },
-      attributes: { exclude: ["password"] },
+      attributes: { exclude: ["password","lastPasswordChange","updated"] },
       include: [
         {
-          model: db.Profile,
+          model: Profile,
           as: "profile",
           attributes: { exclude: ["userId"] },
         },
       ],
     });
 
-    console.log(user);
-    return res
-      .status(201)
-      .json(
-        new ApiResponse({
-          message: "profile created successfully ",
-          data: { user },
-        })
-      );
+    return res.status(201).json(
+      new ApiResponse({
+        message: "profile created successfully ",
+        data: { user },
+      })
+    );
   }),
 
   updateProfile: catchAsync(async (req, res, next) => {
     let id = req.userId;
-    console.log(id, ";id");
-
-    let user = await db.Profile.update(_.get(req, "body", {}), {
+    let payload = req.body;
+    let payloadData = returnKeys(payload,'name','profile_avtar','bio','country')
+    let response =  await Profile.update(payloadData, {
       where: {
         userId: id,
       },
     });
     return res
-      .status(201)
+      .status(200)
       .json(
-        new ApiResponse({ message: "profile updated successfully ", data: {} })
+        new ApiResponse({ message: "profile updated successfully "})
       );
   }),
 
-  getAllCountries: catchAsync( async ( req, res, next ) => {
-    res.status(200).json(new ApiResponse({message:'success',data:{country:countryArr}}))
-  } )
+  getAllCountries: catchAsync(async (req, res, next) => {
+    res
+      .status(200)
+      .json(
+        new ApiResponse({ message: "success", data: { country: countryArr } })
+      );
+  }),
 };

@@ -41,17 +41,19 @@ exports.protectRoute = catchAsync(async (req, res, next) => {
 
 exports.checkEmailVerified = catchAsync(async (req, res, next) => {
   const data = req.body;
+  
   if (!(data.email || data.username))
     return next(new AppError("please provide username or email", 400));
   let user = null;
   if (data.email) {
-    user = await db.User.findOne({
+    
+    user = await User.findOne({
       where: {
         email: data.email,
       },
     });
   } else {
-    user = await db.User.findOne({
+    user = await User.findOne({
       where: {
         username: data.username,
       },
@@ -59,7 +61,8 @@ exports.checkEmailVerified = catchAsync(async (req, res, next) => {
   }
   if (!user)
     return next(new AppError("user does't exist please signup first", 400));
-  if (!user.isEmailVerified)
+  console.log(user,"ds")
+  if (!user.isVerified)
     return next(new AppError("please verify your email first", 400));
   req.user = user;
   next();
@@ -92,13 +95,13 @@ exports.checkUserExistOrNot = catchAsync(async (req, res, next) => {
   let data = req.body;
   if (
     !data ||
-    Object.keys(data).includes("gmail") ||
+    Object.keys(data).includes("email") ||
     Object.keys(data).includes("username")
   ) {
     return next(new AppError("please provide email or username", 401));
   }
   let findQuery = { username: req?.body?.username };
-  if (Object.keys(data).includes("gmail")) {
+  if (Object.keys(data).includes("email")) {
     findQuery = { email: req?.body?.email };
   }
   findQuery = {

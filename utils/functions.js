@@ -118,3 +118,13 @@ exports.checkKeyExistOrNot = (obj = {}, key="") => {
     return false;
   }
 }
+
+exports.returnKeys   = (obj,...keys) => {
+  let keysObj = {};
+  keys.forEach(element => {
+    if(obj.hasOwnProperty(element)){
+      keysObj[element]  = obj[element]
+    }
+  });
+  return keysObj
+}

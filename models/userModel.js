@@ -30,6 +30,10 @@ const User = sequelize.define('Users', {
     allowNull: false,
     unique: true
   },
+  isDeleted:{
+    type: DataTypes.BOOLEAN,
+    default: false
+  },
   password: {
     type: DataTypes.STRING,
     allowNull: false,
