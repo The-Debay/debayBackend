@@ -1,9 +1,10 @@
 const DataTypes = require("sequelize");
 const { sequelize } = require("../config/sequelize");
 const User = require("./userModel");
+const Tags = require("./tags");
 
 const Profile = sequelize.define(
-  "profile",
+  "profiles",
   {
     id: {
       allowNull: false,
@@ -20,6 +21,18 @@ const Profile = sequelize.define(
       default:
         "https://upload.wikimedia.org/wikipedia/commons/1/1e/Default-avatar.jpg",
     },
+
+    date_of_birth:{
+      type:DataTypes.DATE,
+      default:null
+    },
+    gender:{
+      type:DataTypes.ENUM({
+        values:['MALE','FEMALE','OTHER']
+      }),
+      default:'MALE'
+    },
+
     bio: {
       type: DataTypes.STRING(2000),
       allowNull: true,
@@ -33,7 +46,8 @@ const Profile = sequelize.define(
       references: {
         model: "Users",
         key: "id"
-      }
+      },
+      unique:true
     }
   },
   {
@@ -48,11 +62,23 @@ Profile.belongsTo(User, {
 User.hasOne(Profile, {
   foreignKey: 'userId'
 });
-// Profile.belongsTo(User,{
-//   forignKey:"userId"
-// })
-// User.hasOne(Profile,{
-//   forignKey:"userId"
-// });
+
+Tags.belongsToMany(Profile, {
+  through: "intersted_user_topics",
+  foreignKey: "tagId",
+  as: "profiles",
+});
+
+Profile.belongsToMany(Tags, {
+  through: "intersted_user_topics",
+  foreignKey: "profileId",
+  as: "tags",
+});
+
+
+
+// In tagsModel.js
+
+
 
 module.exports = Profile;

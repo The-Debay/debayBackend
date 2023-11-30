@@ -33,6 +33,11 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
       },
+      isDeleted:{
+        type:Sequelize.BOOLEAN,
+        default:false
+
+      },
       isVerified:{
         type: Sequelize.BOOLEAN,
         defaultValue: false,
