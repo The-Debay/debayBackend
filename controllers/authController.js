@@ -28,6 +28,7 @@ exports.checkUsernameExist = exports.signUp = catchAsync ( async (req, res, next
     return res.status(201).json(new ApiResponse({message:'success',data:{isUniqueUsername}}))
 })
   
+
 exports.signUp = catchAsync(async (req, res, next) => {
   
   let { email, password, username } = req.body
@@ -53,6 +54,7 @@ exports.signUp = catchAsync(async (req, res, next) => {
   return res.status(201).json(new ApiResponse({message:'success',data:{user}}))
 })
 
+
 exports.verifyEmailOtp = catchAsync( async ( req, res, next) => {
   let {otp} = req.body;
   let user = req.user;
@@ -72,6 +74,7 @@ exports.verifyEmailOtp = catchAsync( async ( req, res, next) => {
   return res.status(200).json(new ApiResponse({message:"otp verification successfuly",data:{}}));
 })
 
+
 exports.generateNewOtp = catchAsync ( async (req, res, next) => {
   let user = req.user;
   if(user.isVerified) return next(new AppError('user already verified',400));
@@ -85,6 +88,7 @@ exports.generateNewOtp = catchAsync ( async (req, res, next) => {
   sendMails({customerName:'',otp:newOtp,email:user.email})
   res.status(200).json(new ApiResponse({message:`otp sent ${user.email} successfully`,data:{}}));
 })
+
 
 exports.login = catchAsync(async (req,res,next) => {
   let data = req.body;

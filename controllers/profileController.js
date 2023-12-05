@@ -36,7 +36,6 @@ module.exports = {
       ],
     });
 
-    console.log(user);
     return res
       .status(201)
       .json(
@@ -49,7 +48,6 @@ module.exports = {
 
   updateProfile: catchAsync(async (req, res, next) => {
     let id = req.userId;
-    console.log(id, ";id");
 
     let user = await db.Profile.update(_.get(req, "body", {}), {
       where: {

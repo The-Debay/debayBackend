@@ -26,7 +26,6 @@ exports.generateSixDigitRandomNumber = () => {
 exports.passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{10,}$/;
 
 exports.getArrContent = (inputString) => {
-  console.log(inputString);
   const content = inputString.slice(1, -1);
   const arr = content.split(',');
   return arr;
@@ -76,7 +75,7 @@ exports.getDate = (type) => {
   const currentMonth = moment().startOf('month'); // Start of the current month
   const startOfMonth = currentMonth.clone().startOf('day'); // 00:00:00
   const endOfMonth = currentMonth.clone().endOf('month').endOf('day'); // 23:59:59.999
-  console.log('checked')
+  
   var currentDate = moment();
   if(type === 'THIS_MONTH'){
     return {
