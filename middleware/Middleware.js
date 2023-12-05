@@ -76,7 +76,7 @@ exports.checkNewOtpTime = catchAsync(async (req, res, next) => {
   if (!otpData) return next();
   
   otpData = JSON.parse(otpData);
-  console.log(otpData, "otpData");
+  
   let newOtpTime = otpData.newOtpTime;
   if (Number(newOtpTime) > new Date()) {
     let calculateSeconds = Math.ceil(

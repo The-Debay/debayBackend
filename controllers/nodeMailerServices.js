@@ -9,10 +9,12 @@ const sendMails = async ({customerName, otp, email, subject = "Otp for Verificat
   const filePath = path.join(__dirname, "/htmlTemplate/emailOtp.html");
   const source = fs.readFileSync(filePath, "utf-8").toString();
   const template = handlebars.compile(source);
+
   const replacements = {
     customerName,
     otp,otpValidTime
   };
+
   const htmlToSend = template(replacements);
   const transporter = nodemailer.createTransport({
     service: "gmail",
@@ -21,18 +23,18 @@ const sendMails = async ({customerName, otp, email, subject = "Otp for Verificat
       pass: process.env.SMTP_PASS,
     },
   });
+
   let mailOptions = {
     from: process.env.SMTP_USER,
     to: email,
     subject: subject,
     html: htmlToSend,
   };
+
   return new Promise((resolve, reject) => {
     try {
       transporter.sendMail(mailOptions, function (error, info) {
-        console.log(error, "error");
         if (error) {
-          console.log(error);
           reject({ msg: "erorr while sending mail please try it again" });
         } else {
           resolve({ msg: `mail sent successfully in to ${adminData.email}` });
